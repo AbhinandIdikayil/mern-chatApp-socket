@@ -1,16 +1,44 @@
 import React, { useState } from 'react'
 import { Stack, HStack, VStack, FormControl, FormLabel, Input, InputRightElement, InputGroup, Button } from '@chakra-ui/react'
+import { useToast } from '@chakra-ui/react'
+import { axiosInstance } from '../../services/axios'
+import {useNavigate} from 'react-router-dom'
 
 function Signup() {
-  const [name,setName] = useState('')
-  const [email,setEmail] = useState('')
-  const [password,setPassword] = useState('')
 
-  const [show,setShow] = useState(false)
+  const navigate = useNavigate()
+
+  const [name, setName] = useState('')
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+
+  const toast = useToast()
+
+  const [show, setShow] = useState(false)
   const handleClick = () => setShow(!show);
 
-  function submitHandler () {
-
+  async function submitHandler() {
+    if (!name || !email || !password) {
+      toast({
+        title: 'Please Fil all the form',
+        status: 'warning',
+        duration: 5000,
+        isClosable: true,
+      })
+      return
+    }
+    const { data } = await axiosInstance.post('/api/user/signup', { name, email, password });
+    if (data) {
+      toast({
+        title: 'Account created.',
+        description: "We've created your account for you.",
+        status: 'success',
+        duration: 9000,
+        isClosable: true,
+      })
+      localStorage.setItem('userInfo',JSON.stringify(data));
+      navigate('/chats')
+    }
   }
 
 
