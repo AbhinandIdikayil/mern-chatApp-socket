@@ -33,18 +33,19 @@ exports.registerUser = asyncHandler(async (req, res) => {
 })
 
 
-exports.authUser = asyncHandler(async(req,res) => {
+exports.authUser = asyncHandler(async (req, res) => {
     try {
-      const {email,password} = req.body;
-      let user = await userMode.findOne({email})
-      if(user && (await user.matchPassword(password))) {
+        const { email, password } = req.body;
+        console.log(email)
+        let user = await userMode.findOne({ email })
+        if (user && (await user.matchPassword(password))) {
             res.status(200).json({
                 _id: user._id,
                 name: user.name,
                 email: user.email,
                 token: generateToken(user._id),
             })
-      }
+        }
     } catch (error) {
         console.log(error)
     }
