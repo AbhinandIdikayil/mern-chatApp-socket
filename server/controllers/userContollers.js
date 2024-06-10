@@ -1,7 +1,6 @@
 const UserModel = require('../models/userMode')
 const asyncHandler = require('express-async-handler')
 const generateToken = require('../config/generateToken')
-const userMode = require('../models/userMode')
 
 
 exports.registerUser = asyncHandler(async (req, res) => {
@@ -37,7 +36,7 @@ exports.authUser = asyncHandler(async (req, res) => {
     try {
         const { email, password } = req.body;
         console.log(email)
-        let user = await userMode.findOne({ email })
+        let user = await UserModel.findOne({ email })
         if (user && (await user.matchPassword(password))) {
             res.status(200).json({
                 _id: user._id,
@@ -46,6 +45,22 @@ exports.authUser = asyncHandler(async (req, res) => {
                 token: generateToken(user._id),
             })
         }
+    } catch (error) {
+        console.log(error)
+    }
+})
+
+exports.allUsers = asyncHandler(async (req, res) => {
+    try {
+        const keyword = req.query.search ? {
+            $or: [
+                { name: { $regex: req.query.search, $options: 'i' } },
+                { email: { $regex: req.query.search, $options: 'i' } },
+            ]
+        } : {};
+        const user = await UserModel.find(keyword).find({ _id: { $ne: req.user._id } });
+
+        res.status(200).json(user)
     } catch (error) {
         console.log(error)
     }

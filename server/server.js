@@ -2,9 +2,10 @@ const express = require('express')
 const { chats } = require('./data/data')
 const dotenv = require('dotenv')
 const cors = require('cors')
-const {connectDB} = require('./config/db')
+const { connectDB } = require('./config/db')
 const { userRoute } = require('./routes/userRoute')
 const { notFound, errorHandler } = require('./middleware/erroMiddleware')
+const { chatRouter } = require('./routes/chatRoute')
 dotenv.config()
 const app = express()
 
@@ -23,13 +24,13 @@ const PORT = process.env.PORT || 3000
 //     res.status(200).json(chats)
 // })
 
-app.use('/api/user',userRoute);
-
+app.use('/api/user', userRoute);
+app.use('/api/chat', chatRouter)
 
 app.use(notFound);
 app.use(errorHandler);
 
-app.listen(PORT,() => {
+app.listen(PORT, () => {
     connectDB()
     console.log(`server is running on ${PORT}`)
 })

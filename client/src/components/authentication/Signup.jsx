@@ -27,7 +27,7 @@ function Signup() {
       })
       return
     }
-    const { data } = await axiosInstance.post('/api/user/signup', { name, email, password });
+    const { data } = await axiosInstance.post('/api/user', { name, email, password });
     if (data) {
       toast({
         title: 'Account created.',
