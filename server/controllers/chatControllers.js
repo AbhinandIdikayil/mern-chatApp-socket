@@ -104,13 +104,61 @@ exports.renameGroup = asyncHandler(async (req, res) => {
         {
             new: true
         }
-    ).populate('users','-password')
-    .populate('groupAdmin','-password')
+    ).populate('users', '-password')
+        .populate('groupAdmin', '-password')
 
-    if(!updatedChart) {
+    if (!updatedChart) {
         res.status(404)
         throw new Error('chat not found')
     } else {
         res.json(updatedChart)
+    }
+})
+
+exports.addToGroup = asyncHandler(async (req, res) => {
+    const { chatId, userId } = req.body
+
+
+    const added = await chatModel.findByIdAndUpdate(
+        chatId,
+        {
+            $push: { users: userId }
+        },
+        { new: true }
+    ).populate('users', '-password')
+        .populate('groupAdmin', '-password');
+
+
+    if (!added) {
+        res.status(404)
+        throw new Error('Chat not found')
+    } else {
+        res.json(added)
+    }
+})
+
+exports.removeFromGroup = asyncHandler(async (req, res) => {
+    try {
+        const { chatId, userId } = req.body
+
+
+        const removed = await chatModel.findByIdAndUpdate(
+            chatId,
+            {
+                $push: { users: userId }
+            },
+            { new: true }
+        ).populate('users', '-password')
+            .populate('groupAdmin', '-password');
+
+
+        if (!removed) {
+            res.status(404)
+            throw new Error('Chat not found')
+        } else {
+            res.json(removed)
+        }
+    } catch (error) {
+        console.log(error)
     }
 })
