@@ -4,7 +4,7 @@ import React from 'react'
 function UserListItem({user , handleFunction}) {
     return (
         <Box
-            // onClick={handleFunction}
+            onClick={handleFunction}
             cursor="pointer"
             bg="#E8E8E8"
             _hover={{

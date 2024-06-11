@@ -5,7 +5,7 @@ import {
   DrawerFooter,
   DrawerHeader, DrawerOverlay, Input, Menu,
   MenuButton, MenuDivider, MenuItem,
-  MenuList, Text, Tooltip,
+  MenuList, Spinner, Text, Tooltip,
   useDisclosure
 } from '@chakra-ui/react'
 import { useToast } from '@chakra-ui/react'
@@ -28,7 +28,7 @@ function SideDrawer() {
   const [loading, setLoading] = useState(false);
   const [loadingChat, setLoadingChat] = useState();
 
-  const { user } = UseChatState();
+  const { user, setSelectedChat, chats, setChats } = UseChatState();
 
 
   const { isOpen, onOpen, onClose } = useDisclosure()
@@ -78,8 +78,33 @@ function SideDrawer() {
     }
   }
 
-  function accessChat(userId) {
+  async function accessChat(userId) {
+    try {
+      setLoadingChat(true);
+      const config = {
+        headers: {
+          'Content-type': 'application/json',
+          Authorization: `Bearer ${user.token}`
+        }
+      };
 
+      const { data } = await axiosInstance.post(`/api/chat/`, { userId }, config);
+      if (data) {
+        if (!chats.find((c) => c._id === data._id)) setChats([data, ...chats])
+        setSelectedChat(data)
+        setLoadingChat(false)
+        onClose()
+      }
+    } catch (error) {
+      console.log(error)
+      toast({
+        title: 'Error occured',
+        description: error?.message,
+        status: 'error',
+        duration: 5000,
+        isClosable: true,
+      });
+    }
   }
 
   return (
@@ -157,6 +182,8 @@ function SideDrawer() {
                 )
               })
             )}
+
+            {loadingChat && <Spinner ml='auto' display={'flex'} />}
           </DrawerBody>
 
         </DrawerContent>
