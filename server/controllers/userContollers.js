@@ -22,7 +22,8 @@ exports.registerUser = asyncHandler(async (req, res) => {
             _id: user._id,
             name: user.name,
             email: user.email,
-            token: generateToken(user._id)
+            token: generateToken(user._id),
+            pic:user.pic
         })
     } else {
         res.status(400)

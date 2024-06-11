@@ -31,9 +31,10 @@ function Login() {
                 status: 'success',
                 duration: 9000,
                 isClosable: true,
-            })
-            return navigate('/chats')
-        }
+            });
+            localStorage.setItem('userInfo',JSON.stringify(data));
+      navigate('/chats')
+        };
     }
     return (
         <VStack spacing='5px'>
