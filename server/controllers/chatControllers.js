@@ -145,7 +145,7 @@ exports.removeFromGroup = asyncHandler(async (req, res) => {
         const removed = await chatModel.findByIdAndUpdate(
             chatId,
             {
-                $push: { users: userId }
+                $pull: { users: userId }
             },
             { new: true }
         ).populate('users', '-password')
@@ -156,7 +156,7 @@ exports.removeFromGroup = asyncHandler(async (req, res) => {
             res.status(404)
             throw new Error('Chat not found')
         } else {
-            res.json(removed)
+            res.status(200).json(removed)
         }
     } catch (error) {
         console.log(error)
