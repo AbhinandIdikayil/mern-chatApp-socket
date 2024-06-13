@@ -23,7 +23,6 @@ function MyChats({fetchAgain,setFetchAgain}) {
       }
 
       const { data } = await axiosInstance.get('/api/chat', config);
-      console.log(data, 'ji')
       if (data) {
         setChats(data)
       }
@@ -42,10 +41,9 @@ function MyChats({fetchAgain,setFetchAgain}) {
 
   useEffect(() => {
     setLoggedUser(JSON.parse(localStorage.getItem('userInfo')));
-    console.log(chats)
     fetchChats();
   }, [fetchAgain])
-  console.log(loggedUser)
+
   return (
     <Box
       display={{ base: selectedChat ? "none" : "flex", md: "flex" }}
@@ -83,7 +81,6 @@ function MyChats({fetchAgain,setFetchAgain}) {
           chats ? (
             <Stack overflowY={'scroll'}>
               {chats.map((chat) => {
-                console.log(chat)
                 return (
                   <Box
                     onClick={() => setSelectedChat(chat)}

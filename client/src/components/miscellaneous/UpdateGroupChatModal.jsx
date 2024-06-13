@@ -6,7 +6,7 @@ import UserBadgeItemn from '../user/UserBadgeItemn';
 import { axiosInstance } from '../../services/axios';
 import UserListItem from '../user/UserListItem';
 
-function UpdateGroupChatModal({ fetchAgain, setFetchAgain }) {
+function UpdateGroupChatModal({ fetchAgain, setFetchAgain, fetchMessages }) {
 
     const [groupChatName, setGroupChatName] = useState();
     const [search, setSearch] = useState('')
@@ -87,13 +87,14 @@ function UpdateGroupChatModal({ fetchAgain, setFetchAgain }) {
                 chatId: selectedChat._id,
                 userId: user1._id
             }, config)
-            if(data) {
+            if (data) {
                 user1._id == user._id ? setSelectedChat() : setSelectedChat(data)
+                fetchMessages()
                 setFetchAgain(!fetchAgain)
                 setloading(false)
             }
         } catch (error) {
-console.log(error)
+            console.log(error)
         }
 
     }

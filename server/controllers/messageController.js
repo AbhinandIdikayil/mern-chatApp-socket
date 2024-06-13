@@ -15,7 +15,7 @@ exports.sendMessage = asyncHandler(async (req, res) => {
             content,
             chat: chatId
         }
-        let message = await MessageModel.crate(newMessage)
+        let message = await MessageModel.create(newMessage)
         message = await message.populate('sender', 'name pic');
         message = await message.populate('chat');
         message = await userMode.populate(message, {
