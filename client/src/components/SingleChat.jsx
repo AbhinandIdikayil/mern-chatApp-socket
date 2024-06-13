@@ -8,6 +8,10 @@ import UpdateGroupChatModal from './miscellaneous/UpdateGroupChatModal'
 import { axiosInstance } from '../services/axios'
 import './styles.css'
 import ScrollableChat from './ScrollableChat'
+import io from 'socket.io-client'
+
+const ENDPOINT = 'http://localhost:3000';
+var SOCKET, SELECTEDCHATCOMPARE;
 
 function SingleChat({ fetchAgain, setFetchAgain }) {
 
@@ -15,12 +19,33 @@ function SingleChat({ fetchAgain, setFetchAgain }) {
     const [loading, setLoading] = useState(false)
     const [newMessage, setNewMessage] = useState()
     const { user, selectedChat, setSelectedChat } = UseChatState()
-
+    const [socketConnected, setSocketConnected] = useState(false)
+    const [typing, setTyping] = useState(false);
+    const [isTyping, setIsTyping] = useState(false);
     const toast = useToast();
 
     useEffect(() => {
         fetchMessages();
+        SELECTEDCHATCOMPARE = selectedChat
     }, [selectedChat])
+
+    useEffect(() => {
+        SOCKET = io(ENDPOINT);
+        SOCKET.emit('setup', user)
+        SOCKET.on('connection', () => setSocketConnected(true))
+        SOCKET.on('typing', () => setIsTyping(true));
+        SOCKET.on('stop typing', () => setIsTyping(false))
+    }, [])
+
+    useEffect(() => {
+        SOCKET.on('message recieved', (newMessageRecieved) => {
+            if (!SELECTEDCHATCOMPARE || SELECTEDCHATCOMPARE._id != newMessageRecieved.chat._id) {
+                // give notification
+            } else {
+                setMessages([...messsages, newMessageRecieved])
+            }
+        })
+    })
 
     const fetchMessages = async () => {
         if (!selectedChat) return
@@ -35,6 +60,7 @@ function SingleChat({ fetchAgain, setFetchAgain }) {
             if (data) {
                 setMessages(data)
                 setLoading(false);
+                SOCKET.emit('join chat', selectedChat._id)
             }
 
         } catch (error) {
@@ -56,7 +82,9 @@ function SingleChat({ fetchAgain, setFetchAgain }) {
                     content: newMessage,
                     chatId: selectedChat._id
                 }, config)
-                console.log(data)
+
+                SOCKET.emit('new message', data);
+
                 setMessages([...messsages, data]);
             } catch (error) {
                 console.log(error)
@@ -67,7 +95,21 @@ function SingleChat({ fetchAgain, setFetchAgain }) {
     function typingHandler(e) {
         setNewMessage(e.target.value);
         // typing indicator logic
-
+        if (!socketConnected) return;
+        if (!typing) {
+            setTyping(true)
+            SOCKET.emit('typing', selectedChat._id)
+        }
+        let lastTypingTime = new Date().getTime()
+        let timerLength = 3000;
+        setTimeout(() => {
+            let timeNow = new Date().getTime();
+            let timeDifference = timeNow - lastTypingTime;
+            if (timeDifference >= timerLength && typing) {
+                SOCKET.emit('stop typing', selectedChat._id);
+                setTyping(false)
+            }
+        }, timerLength)
     }
 
 
