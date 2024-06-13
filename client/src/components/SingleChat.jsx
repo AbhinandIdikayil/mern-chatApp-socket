@@ -9,6 +9,17 @@ import { axiosInstance } from '../services/axios'
 import './styles.css'
 import ScrollableChat from './ScrollableChat'
 import io from 'socket.io-client'
+import Lottie, {} from 'react-lottie'
+import animationData from '../animation/typing.json'
+const defaultOptios = {
+    loop:true,
+    autoplay:true,
+    animationData,
+    rendererSettings: {
+        preserveAspectRatio:'xMidYMid slice'
+    }
+}
+
 
 const ENDPOINT = 'http://localhost:3000';
 var SOCKET, SELECTEDCHATCOMPARE;
@@ -32,7 +43,7 @@ function SingleChat({ fetchAgain, setFetchAgain }) {
     useEffect(() => {
         SOCKET = io(ENDPOINT);
         SOCKET.emit('setup', user)
-        SOCKET.on('connection', () => setSocketConnected(true))
+        SOCKET.on('connected', () => setSocketConnected(true))
         SOCKET.on('typing', () => setIsTyping(true));
         SOCKET.on('stop typing', () => setIsTyping(false))
     }, [])
@@ -69,6 +80,7 @@ function SingleChat({ fetchAgain, setFetchAgain }) {
     }
 
     async function sendMessage(e) {
+        SOCKET.emit('stop typing',selectedChat._id)
         if (e.key == 'Enter' && newMessage) {
             try {
                 const config = {
@@ -171,6 +183,11 @@ function SingleChat({ fetchAgain, setFetchAgain }) {
                                 )
                             }
                             <FormControl onKeyDown={sendMessage} isRequired mt={3}>
+                                {
+                                    isTyping ? <div>
+                                        <Lottie options={defaultOptios} width={70} style={{marginBottom:15,marginLeft:0}} />
+                                    </div>: <></>
+                                }
                                 <Input border='1px' value={newMessage} placeholder='Enter a message..' onChange={typingHandler} variant={'filled'} bg={'#E8E8E8'} />
                             </FormControl>
                         </Box>
